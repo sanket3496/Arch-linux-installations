@@ -31,6 +31,10 @@ set( PATH_TO_LLVM_ROOT "/usr/share/ycm-clang-llvm" CACHE PATH "Path to ... " )
 And finally, set the path to libclang on line 26. In my case it reads
 set( EXTERNAL_LIBCLANG_PATH "/usr/share/ycm-clang-llvm/lib/libclang.so" CACHE PATH "Path to ... " )
 
-Finally, we can build and install YouCompleteMe by running ./install.py --clang-completer in the neovim / vim plugin directory, where it was downloaded.
+Finally, we can build and install YouCompleteMe by running 
+
+>./install.py --clang-completer 
+
+in the neovim / vim plugin directory, where it was downloaded.
 
 Enjoy the YCM !!
