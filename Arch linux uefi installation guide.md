@@ -1,4 +1,4 @@
-TABLE OF CONTENTS:
+# TABLE OF CONTENTS:
 
 PART 1: Preparation and Disk Partitioning
 
