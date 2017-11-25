@@ -62,7 +62,7 @@ For creating bootable usb on windows
 For creating bootable usb on linux
 3a.
 
-sudo dd bs=4M if=/path/to/archlinux.iso of=/dev/sdX status=progress && sync
+> sudo dd bs=4M if=/path/to/archlinux.iso of=/dev/sdX status=progress && sync
 
 (sdX being your USB stick. You can find this withthe command: lsblk)
 -Details regarding enabling EFI mode via BIOS
@@ -80,13 +80,13 @@ root@archiso ~ #
 Before we do anything, we need to confirm we have an internet connection, and that we are actually in EFI mode. I use a wired connection, so linux should auto-detect it. I will post a wifi connection sublink when I am able to make it, for now we are going to just use our LAN connection. Test it by typing:
 
 
-ping -c 3 www.google.com
+> ping -c 3 www.google.com
 
 if you get a response, your internet is working properly.
 -Verifying EFI mode is enabled
 Now test if we are using UEFI mode by typing:
 
-efivar -l
+> efivar -l
 
 if it spits out a list of stuff (uefi variables) then you are using UEFI mode.
 ——————————-
@@ -94,7 +94,7 @@ Disk Partitioning:
 -Finding all available drives
 First I need to set up my partitions. I wiped my current partitions to make a fresh install using the whole drive. I need to find out which partitions I want to use, by typing:
 
-lsblk
+> lsblk
 
 This shows me all of the drives availabe.
 In my case, I have 3 drives
@@ -112,17 +112,17 @@ For me, /dev/sda is the drive I want to install linux on, which I will be wiping
 
 ***PLEASE NOTE: THIS WILL WIPE THE ENTIRE DRIVE**
 
-gdisk /dev/sdX (x representing your drive. mine is sda)
-x
-z
-y
-y
+> gdisk /dev/sdX (x representing your drive. mine is sda)
+> x
+> z
+> y
+> y
 
 boom. zapped.
 -Creating boot partition and the difference between EF00 and EF02 Hex codes
 Now to create my new partitions. So lets start partitioning:
 
-cgdisk /dev/sdX
+> cgdisk /dev/sdX
 
 Any key to continue
 Note: the order you create the partitions is the order they will be listed in, so if I create three partitions in order such as boot, swap, root, home on /dev/sda, then “lsblk” again, they will be listed as:
@@ -134,11 +134,11 @@ sda
 
 I’m going to create my boot partition first. I am using EFI, so EF00 will be our hex code (NOT EF02. I’ve racked my brain over this error before trying to figure out why EFI system wouldn’t boot). I generally dedicate 1Gb (1024MiB) of space to the boot sector so that I have room to breathe in case I need to change anything or add multiple boot kernels, although arch wiki recommends only 200-300Mb. I also will name it “boot”.
 
-[New] Press Enter
-First Sector: Leave this blank ->press Enter
-Size in sectors: 1024MiB ->press Enter
-Hex Code: EF00 press Enter
-Enter new partition name: boot ->press Enter
+> [New] Press Enter
+> First Sector: Leave this blank ->press Enter
+> Size in sectors: 1024MiB ->press Enter
+> Hex Code: EF00 press Enter
+> Enter new partition name: boot ->press Enter
 Note the 1007KiB existing before the boot partition we just made. This is where the Protective MBR is, and is present on all GPT partition tables. This cannot be removed/deleted. (This is yet another thing I’ve racked my brain over in the past while trying to create boot partitions). It is OK to ignore.
 
 Now, arrow down to the next free space available, then go to [New] again.
@@ -175,11 +175,11 @@ if allowing for hibernation
 
 In my case I have 16GB of RAM, and wish to use hibernation, In cases where you have more than 8GB of ram, you don’t usually need a lot of swap since you have more physical memory to handle tasks, so I went with 0.5 x 16, which is 8GB of swap space:
 
-[New] Press Enter
-First Sector: Leave this blank ->press Enter
-Size in sectors: 8GiB ->press Enter
-Hex Code: 8200 ->press Enter
-Enter new partition name: swap ->press Enter
+> [New] Press Enter
+> First Sector: Leave this blank ->press Enter
+> Size in sectors: 8GiB ->press Enter
+> Hex Code: 8200 ->press Enter
+> Enter new partition name: swap ->press Enter
 
 Ok, boot and swap: done.
 -Creating root and home, the differences between them, and choosing whether to keep them on the same partition
@@ -206,26 +206,26 @@ Arrow down to the next free space available, then go to [New] again.
 
 For root with /home inside:
 
-[New] Press Enter
-First Sector: Leave this blank ->press Enter
-Size in sectors: Leave this blank ->press Enter
-Hex Code: Leave this blank ->press Enter
-Enter new partition name: root ->press Enter
-For root with seperate /home partition:
+> [New] Press Enter
+> First Sector: Leave this blank ->press Enter
+> Size in sectors: Leave this blank ->press Enter
+> Hex Code: Leave this blank ->press Enter
+> Enter new partition name: root ->press Enter
+> For root with seperate /home partition:
 
-[New] Press Enter
-First Sector: Leave this blank ->press Enter
-Size in sectors: 20GiB ->press Enter
-Hex Code: Leave this blank ->press Enter
-Enter new partition name: root ->press Enter
+> [New] Press Enter
+> First Sector: Leave this blank ->press Enter
+> Size in sectors: 20GiB ->press Enter
+> Hex Code: Leave this blank ->press Enter
+> Enter new partition name: root ->press Enter
 
 Arrow down to the next free space available, then go to [New] again.
 
-[New] Press Enter
-First Sector: Leave this blank ->press Enter
-Size in sectors: Leave this blank ->press Enter
-Hex Code: Leave this blank ->press Enter
-Enter new partition name: home ->press Enter
+> [New] Press Enter
+> First Sector: Leave this blank ->press Enter
+> Size in sectors: Leave this blank ->press Enter
+> Hex Code: Leave this blank ->press Enter
+> Enter new partition name: home ->press Enter
 
 Arrow over to [Write] to save your new partitions, hit enter, type “yes”, hit enter again.
 Lastly, Arrow over to [Quit] and press enter.
@@ -234,11 +234,11 @@ Reboot
 
 I now need to let linux know the file system for our partitions. For EFI with GPT, boot needs to be Fat32. For swap we simply use mkswap. The rest are default ext4 file systems:
 
-mkfs.fat -F32 /dev/sda1
-mkswap /dev/sda2
-swapon /dev/sda2
-mkfs.ext4 /dev/sda3
-mkfs.ext4 /dev/sda4
+> mkfs.fat -F32 /dev/sda1
+> mkswap /dev/sda2
+> swapon /dev/sda2
+> mkfs.ext4 /dev/sda3
+> mkfs.ext4 /dev/sda4
 
 root and home done.
 ——————————-
@@ -246,39 +246,39 @@ root and home done.
 -Mounting our partitions
 Ok, so we have our partitions. We need to mount them.
 
-mount /dev/sda3 /mnt
-mkdir /mnt/boot
-mkdir /mnt/home
-mount /dev/sda1 /mnt/boot
-mount /dev/sda4 /mnt/home
+> mount /dev/sda3 /mnt
+> mkdir /mnt/boot
+> mkdir /mnt/home
+> mount /dev/sda1 /mnt/boot
+> mount /dev/sda4 /mnt/home
 -Setting up our Arch repository mirrorlist
 Before we initiate the install process let’s select the closest mirror so that you get the best speed while downloading packages. I’ve found the easiest method to do this came via the arch wiki.
 Make a backup:
 
-cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
+> cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
 
 Now, instead of going through the list with nano and trying to scroll down a million mirrors, we’re going to do something different. Run the following sed line to uncomment every mirror:
 
-sed -i 's/^#Server/Server/' /etc/pacman.d/mirrorlist.backup
+> sed -i 's/^#Server/Server/' /etc/pacman.d/mirrorlist.backup
 
 Lets sort that backup. This command will run a check for the top 6 mirrors you have the best connection to, and leave them uncommented while commenting out the rest:
 
-rankmirrors -n 6 /etc/pacman.d/mirrorlist.backup > /etc/pacman.d/mirrorlist
+> rankmirrors -n 6 /etc/pacman.d/mirrorlist.backup > /etc/pacman.d/mirrorlist
 
 -Installing the Arch base files
 Now we install the arch base files and development files. This will take some time.
 
-pacstrap -i /mnt base base-devel
+> pacstrap -i /mnt base base-devel
 
 For any options that come up just press enter or type y and press enter
 -Generating an fstab file
 and now we generate our fstab file
 
-genfstab -U -p /mnt >> /mnt/etc/fstab
+> genfstab -U -p /mnt >> /mnt/etc/fstab
 
 now edit it to make sure an entry is listed for each partition. by typing
 
-nano /mnt/etc/fstab
+> nano /mnt/etc/fstab
 
 check to see if there is an entry in fstab for swap since we are here. if there is, it should look something like:
 /dev/sda2 none swap defaults 0 0
@@ -286,129 +286,129 @@ or
 UUID=some-crazy-long-random-id none swap defaults 0 0
 Now we are going to chroot into our newly installed system and begin to configure its booting, time, and language
 
-arch-chroot /mnt
+> arch-chroot /mnt
 
 -Language
 Create locale file:
 
-nano /etc/locale.gen
+> nano /etc/locale.gen
 
 Uncomment your locale. I uncommented en_US.UTF-8. You can search the file for it by typing ctrl+W, type en_US.UTF-8, hit enter, then uncomment it and press ctrl+x to exit
 Now generate that locale by typing:
 
-locale-gen
+> locale-gen
 
 and then set it as your language with:
 
-echo LANG=en_US.UTF-8 > /etc/locale.conf
-export LANG=en_US.UTF-8
+> echo LANG=en_US.UTF-8 > /etc/locale.conf
+> export LANG=en_US.UTF-8
 
 -Time
 List the available time zone info with
 
-ls /usr/share/zoneinfo/
+> ls /usr/share/zoneinfo/
 
 Then link the appropriate one via something like:
 
-ln -s /usr/share/zoneinfo/your-time-zone > /etc/localtime
+> ln -s /usr/share/zoneinfo/your-time-zone > /etc/localtime
 
 Mine for example was:
 
-ln -s /usr/share/zoneinfo/America/New_York > /etc/localtime
+> ln -s /usr/share/zoneinfo/America/New_York > /etc/localtime
 
 Now the hardware clock:
 
-hwclock --systohc --utc
+> hwclock --systohc --utc
 
 -Hostname
-This is the name of your machine, when used it will show @hostnameyoupick. I used shittywok because southpark ;x.
+This is the name of your machine, when used it will show @hostnameyoupick.
 
-echo shittywok > /etc/hostname
+> echo somehostname > /etc/hostname
 Now, many people have SSDs, which have TRIM support. For safe, weekly TRIM service on SSDs and all other devices that enable TRIM support:
 
 systemctl enable fstrim.timer
 -Enabling multilib and Arch AUR community repositories
 If you are running a 64bit system then you need to enable the multilib repository. Open the pacman.conf file using nano:
 
-nano /etc/pacman.conf
+> nano /etc/pacman.conf
 
 Scroll down and un-comment the multilib repo:
 
-[multilib]
-Include = /etc/pacman.d/mirrorlist
+> [multilib]
+> Include = /etc/pacman.d/mirrorlist
 
 While we are still inside pacman.conf file, let’s also add the AUR repo so we can easily install packages from AUR. Add these lines at the bottom of the file:
 
-[archlinuxfr]
-SigLevel = Never
-Server = http://repo.archlinux.fr/$arch
+> [archlinuxfr]
+> SigLevel = Never
+> Server = http://repo.archlinux.fr/$arch
 
 then save and close, and update with:
 
-pacman -Sy
+> pacman -Sy
 
 optionally, update the system with -Syu instead. I will explain at the end of this guide how to use the AUR.
 -Root password and user setup
 First set a password for root with:
 
-passwd
+> passwd
 Now add a default user with:
 
-useradd -m -g users -G wheel,storage,power -s /bin/bash someusername
+> useradd -m -g users -G wheel,storage,power -s /bin/bash someusername
 and set a pass for that user:
 
-passwd someusername
+> passwd someusername
 
 -Setting up sudoers
 Now we have to edit the sudoers file to give this user the much needed sudo powers. Don\92t open this file with a regular editor; it must be edited with visudo command.
 
-EDITOR=nano visudo
+> EDITOR=nano visudo
 
 Uncomment:
 
-%wheel ALL=(ALL) ALL
+> %wheel ALL=(ALL) ALL
 
 And we’re going to make sudoers require typing the root password instead of their own password by adding:
 
-Defaults rootpw
+> Defaults rootpw
 
 Save and close the file.
 Lastly we’re going to install bash-completion which makes it easier with auto-complete of commands and package names.
 
-pacman -S bash-completion
+> pacman -S bash-completion
 
 -Installing the bootloader
 Now to actually make our install boot without a usb drive.
 First we need to double check to see if our EFI variables have already been mounted or not
 
-mount -t efivarfs efivarfs /sys/firmware/efi/efivars
+> mount -t efivarfs efivarfs /sys/firmware/efi/efivars
 
 If this says already mounted just ignore and keep following this guide.
 As we are doing an UEFI installation of archlinux we are going to use Gummiboot as our boot manager, which has now been incorporated into bootctl/systemd-boot.
 
-bootctl install
+> bootctl install
 
 Now you will need to manually create a configuration file to add an entry for Arch Linux to the gummiboot manager:
 
-nano /boot/loader/entries/arch.conf
+> nano /boot/loader/entries/arch.conf
 
 Type the following, make sure sdaX is your root partition (mine is sda3):
 
-title Arch Linux
-linux /vmlinuz-linux
-initrd /initramfs-linux.img
+> title Arch Linux
+> linux /vmlinuz-linux
+> initrd /initramfs-linux.img
 
 save and exit.
 Next, we need to add the PARTUUID of the /root partition to our bootloader configuration.
 You can get a list of hard drive partitions by typing
-lsblk
+> lsblk
 look for the partition that looks like this:
 
-sda3        8:19   0 229.5G  0 part /
+> sda3        8:19   0 229.5G  0 part /
 
 In particular the one that has / as the mountpoint. In our case it was sda3. To add this to our boot loader we next type:
 
-echo "options root=PARTUUID=$(blkid -s PARTUUID -o value /dev/sdb3) rw" >> /boot/loader/entries/arch.conf
+> echo "options root=PARTUUID=$(blkid -s PARTUUID -o value /dev/sdb3) rw" >> /boot/loader/entries/arch.conf
 
 Please note it is VERY important that you type >> and NOT >, >> adds a line to a file while > overwrites the file.
 NOTE: Intel processors
@@ -422,33 +422,33 @@ For AMD processors the microcode updates are available in linux-firmware, which 
 
 If you own a Haswell processor or higher (such as a 4770k or 6700k):
 
-pacman -S intel-ucode
+> pacman -S intel-ucode
 
 then we will have to update our gummiboot by adding another initrd line for intel-ucode as follows:
 
-sudo nano /boot/loader/entries/arch.conf
+> sudo nano /boot/loader/entries/arch.conf
 
 add the intel-ucode line so it looks like this:
 
-initrd /intel-ucode.img
-initrd /initramfs-linux.img
+> initrd /intel-ucode.img
+> initrd /initramfs-linux.img
 Next, let’s make sure our wired network connection is automatically turned on when we start the machine:
 
 First lets see what network adapters were working with via
 
-ip link
+> ip link
 
 Ignore the one listed as lo, that is loopback and is always listed.
 mine was listed as
 enp5s0
 so we’re going to enable it via systemctl
 
-sudo systemctl enable dhcpcd@enp5s0.service
+> sudo systemctl enable dhcpcd@enp5s0.service
 
 for the sake of having a simple graphical interface that works across Desktop Environments, we’ll also install and enable NetworkManager:
 
-sudo pacman -S NetworkManager
-sudo systemctl enable NetworkManager.service
+> sudo pacman -S NetworkManager
+> sudo systemctl enable NetworkManager.service
 That’s it! If you need wireless, please see my wireless guide here:
 
 2016 Arch Linux NetworkManager / Wifi Setup guide.
@@ -460,54 +460,54 @@ I assume you know which GPU you are using. Arch wiki has done a great job at doc
 
 We are using the dkms module so that we don’t have to reinstall nvidia drivers for every different kernel if we decide to try another kernel later. To install dkms modules we need the headers for our kernel:
 
-sudo pacman -S linux-headers
+> sudo pacman -S linux-headers
 I have an Nvidia GTX 980 TI, so my latest drivers will just be nvidia. I also want the multilib drivers and all dependencies required for the nvidia package, so I will install all of the following:
 
-sudo pacman -S nvidia-dkms libglvnd nvidia-utils opencl-nvidia lib32-libglvnd lib32-nvidia-utils lib32-opencl-nvidia nvidia-settings
+> sudo pacman -S nvidia-dkms libglvnd nvidia-utils opencl-nvidia lib32-libglvnd lib32-nvidia-utils lib32-opencl-nvidia nvidia-settings
 We will also want to set nvidia drm kernel modules:
 
-sudo nano /etc/mkinitcpio.conf
+> sudo nano /etc/mkinitcpio.conf
 
 find MODULES=
-change ot so it looks like:
+change it so it looks like:
 
-MODULES="nvidia nvidia_modeset nvidia_uvm nvidia_drm"
+> MODULES="nvidia nvidia_modeset nvidia_uvm nvidia_drm"
 
 We also need to make sure these are loaded during boot, so next we do this:
 
-sudo nano /boot/loader/entries/arch.conf
+> sudo nano /boot/loader/entries/arch.conf
 
 find the line that looks like this:
 
-options root=PARTUUID=bada2036-8785-4738-b7d4-2b03009d2fc1 rw 
+> options root=PARTUUID=bada2036-8785-4738-b7d4-2b03009d2fc1 rw 
 
 add nvidia-drm.modeset=1
 like this
 
-options root=PARTUUID=bada2036-8785-4738-b7d4-2b03009d2fc1 rw nvidia-drm.modeset=1
+> options root=PARTUUID=bada2036-8785-4738-b7d4-2b03009d2fc1 rw nvidia-drm.modeset=1
 Lastly, we need to make a pacman hook, so that any time the kernel is updated, it automatically adds the nvidia module. This will save us a LOT of headache later on.
 
-sudo nano /etc/pacman.d/hooks/nvidia.hook
+> sudo nano /etc/pacman.d/hooks/nvidia.hook
 
 add this content, save, and close:
 
-[Trigger]
-Operation=Install
-Operation=Upgrade
-Operation=Remove
-Type=Package
-Target=nvidia
+> [Trigger]
+> Operation=Install
+> Operation=Upgrade
+> Operation=Remove
+> Type=Package
+> Target=nvidia
 
-[Action]
-Depends=mkinitcpio
-When=PostTransaction
-Exec=/usr/bin/mkinitcpio -P
+> [Action]
+> Depends=mkinitcpio
+> When=PostTransaction
+> Exec=/usr/bin/mkinitcpio -P
 Now you should be able to reboot into your system without the USB stick!
 Type the following commands and then remove the USB stick:
 
-exit
-umount -R /mnt
-reboot
+> exit
+> umount -R /mnt
+> reboot
 You should now be able to boot into your system and be at a black login screen.
 
 ——————————-
@@ -517,27 +517,27 @@ You should now be able to boot into your system and be at a black login screen.
 -Installing touchpad support
 If you are on a laptop and need touchpad support also type
 
-sudo pacman -S xf86-input-synaptics
+> sudo pacman -S xf86-input-synaptics
 
 -Installing 3D support
 now we add 3d support
 
-sudo pacman -S mesa
+> sudo pacman -S mesa
 
 -Installing X server display manager
 now install X, which is our display manager
 
-sudo pacman -S xorg-server xorg-apps xorg-xinit xorg-twm xorg-xclock xterm
+> sudo pacman -S xorg-server xorg-apps xorg-xinit xorg-twm xorg-xclock xterm
 Now we need to test if X runs:
 
-startx
+> startx
 If you get a screen with a few terminals and a clock, it works! You can type “exit” in the terminals to drop back to the command line.
 
 -Installing a desktop manager
 Let’s give ourselves an actual interface to log in to, so we will finally feel at home with our new Arch install:
 
-sudo pacman -S plasma sddm
-sudo systemctl enable sddm.service
+> sudo pacman -S plasma sddm
+> sudo systemctl enable sddm.service
 
 This is for KDE, I use KDE for a few reasons:
 1. Ease of use for beginners
@@ -549,7 +549,7 @@ POST INSTALLATION TWEAKS (IMPORTANT – YOU WILL WANT TO DO THESE):
 
 Once you are in KDE, if you use NVIDIA you will want to get rid of some screen tearing. Open a terminal, run:
 
-sudo nvidia-settings
+> sudo nvidia-settings
 
 Click X Server Display Configuration
 For each monitor:
@@ -561,36 +561,36 @@ Then click Save to X Configuration File, and quit.
 Wwe need a way to install packages from the AUR. If you recall, earlier we added the AUR repos to our pacman.conf. Now we need a way to install them. yaourt is a program that comes in Arch’s main packages, so we need that to get started:
 
 
-sudo pacman -S yaourt
+> sudo pacman -S yaourt
 What the AUR is, is a collection of USER created packages for Arch Linux users to pull from. These can be game installers, programs compiled from git repositories, beta drivers, or other programs that aren’t included in Arch’s main repos. That being said, it is VERY smart to LOOK at the PKGBUILD of a package before installing it, to see what it does, where it installs things, and if the auther has added any notes about installing it. If you find a package on the AUR you want to install, you use yaourt the same way as pacman. AUR packages can be found here: https://aur.archlinux.org/
 
 Many AUR packages compile from source, so you will want to speed up compile times. I have a few small tips for that as well. First, you will need to know the amount of cores your processor has, and will need to know if your processor supports Hyperthreading or SMT. For example, if you own an i7 4770k, you have 4 cores and support hyperthreading, essentially giving you 8 cores. Ryzen 1700x 8 cores, 16 threads – counts as 16 cores. If your processor does NOT support SMT/hyperthreading, such as an AMD FX-8350, you would just need to know the core number. FX-8350 has 8 cores.
 
 First install ccache:
 
-sudo pacman -S ccache
+> sudo pacman -S ccache
 Next lets enable ccache and set our makeflags for makepkg:
 
-sudo nano /etc/makepkg.conf
+> sudo nano /etc/makepkg.conf
 
 find BUILDENV=
 remove the ! in front of ccache so the line looks like this:
 
-BUILDENV=(!distcc color ccache check !sign)
+> BUILDENV=(!distcc color ccache check !sign)
 
 find MAKEFLAGS=
 change it so it looks similar to
 
-MAKEFLAGS="-j17 -l16"
+> MAKEFLAGS="-j17 -l16"
 
 replace 17 with your number of cores +1, and 16 with your number of cores. At the time of this edit, I currently am using a Ryzen 1700x, which is why I use -j17 -l16
 save, close
 Next we need to make sure ccache and makeflags are set at all times in case we compile something without using a package manager:
-nano ~/.bashrc
+> nano ~/.bashrc
 add these lines, save, close:
 
-export PATH="/usr/lib/ccache/bin/:$PATH"
-export MAKEFLAGS="-j17 -l16"
+> export PATH="/usr/lib/ccache/bin/:$PATH"
+> export MAKEFLAGS="-j17 -l16"
 
 again, replace 17 with your number of cores +1, and 16 with your number of cores. At the time of this edit, I currently am using a Ryzen 1700x, which is why I use -j17 -l16
 DONE! ENJOY YOUR NEW ARCH LINUX SYSTEM! I HOPE THIS GUIDE HELPED!!!
